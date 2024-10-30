@@ -1,0 +1,60 @@
+/*
+ * MCSTest.java
+ * JUnit based test
+ *
+ * Created on Oct 24, 2024, 8:27 PM
+ */
+
+package edu.vt.ece.spin;
+import junit.framework.*;
+
+/**
+ * Crude & inadequate test of lock class.
+ * @author Maurice Herlihy
+ */
+public class SpinSleepLockTest extends TestCase {
+    private final static int THREADS = 4;
+    private final static int COUNT = 4 * 1024;
+    private final static int PER_THREAD = COUNT / THREADS;
+    Thread[] thread = new Thread[THREADS];
+    int counter = 0;
+
+    SpinSleepLock instance = new SpinSleepLock(3);
+
+    public SpinSleepLockTest(String testName) {
+        super(testName);
+    }
+
+    public static Test suite() {
+        TestSuite suite = new TestSuite(MCSLockTest.class);
+
+        return suite;
+    }
+
+    public void testParallel() throws Exception {
+        for (int i = 0; i < THREADS; i++) {
+            thread[i] = new MyThread();
+        }
+        for (int i = 0; i < THREADS; i++) {
+            thread[i].start();
+        }
+        for (int i = 0; i < THREADS; i++) {
+            thread[i].join();
+        }
+
+        assertEquals(counter, COUNT);
+    }
+
+    class MyThread extends Thread {
+        public void run() {
+            for (int i = 0; i < PER_THREAD; i++) {
+                instance.lock();
+                try {
+                    counter = counter + 1;
+                } finally {
+                    instance.unlock();
+                }
+            }
+        }
+    }
+}

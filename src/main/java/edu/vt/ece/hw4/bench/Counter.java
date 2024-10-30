@@ -7,7 +7,7 @@ public class Counter {
         value = c;
     }
 
-    public int getAndIncrement() {
+    public int getAndIncrement() throws InterruptedException {
         int temp = value;
         value = temp + 1;
         return temp;

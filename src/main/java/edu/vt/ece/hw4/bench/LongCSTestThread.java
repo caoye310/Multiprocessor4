@@ -27,9 +27,18 @@ public class LongCSTestThread extends Thread implements ThreadId {
     public void run() {
         long start = System.currentTimeMillis();
 
-        lock.lock();
-        for(int i=0; i<iter; i++)
-            counter.getAndIncrement();
+        try {
+            lock.lock();
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+        for(int i=0; i<iter; i++) {
+            try {
+                counter.getAndIncrement();
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+        }
         lock.unlock();
 
         long end = System.currentTimeMillis();

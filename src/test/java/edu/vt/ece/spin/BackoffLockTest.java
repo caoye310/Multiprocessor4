@@ -6,13 +6,13 @@
  */
 
 package edu.vt.ece.spin;
-
 import junit.framework.*;
 
 /**
  * Crude & inadequate test of lock class.
  * @author Maurice Herlihy
  */
+
 public class BackoffLockTest extends TestCase {
     private final static int THREADS = 8;
     private final static int COUNT = 8 * 1024;

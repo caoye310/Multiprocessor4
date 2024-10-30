@@ -15,7 +15,7 @@ public class SharedCounter extends Counter{
     }
 
     @Override
-    public int getAndIncrement() {
+    public int getAndIncrement() throws InterruptedException {
         lock.lock();
         int temp = -1;
         try {

@@ -13,22 +13,19 @@ package edu.vt.ece.hw4.locks;
 import java.util.concurrent.atomic.AtomicReference;
 
 public class MCSLock implements Lock {
-    AtomicReference<QNode> tail;
+    AtomicReference<QNode> queue;
     ThreadLocal<QNode> myNode;
 
     public MCSLock() {
-        tail = new AtomicReference<>(null);
-        myNode = new ThreadLocal<QNode>(){
-            protected QNode initialValue() {
-                return new QNode();
-            }
-        };
+        queue = new AtomicReference<>(null);
+        // initialize thread-local variable
+        myNode = ThreadLocal.withInitial(() -> new QNode());
     }
 
     @Override
     public void lock() {
         QNode qnode = myNode.get();
-        QNode pred = tail.getAndSet(qnode);
+        QNode pred = queue.getAndSet(qnode);
         if (pred != null) {
             qnode.locked = true;
             pred.next = qnode;
@@ -41,7 +38,7 @@ public class MCSLock implements Lock {
     public void unlock() {
         QNode qnode = myNode.get();
         if (qnode.next == null) {
-            if (tail.compareAndSet(qnode, null))
+            if (queue.compareAndSet(qnode, null))
                 return;
             while (qnode.next == null) {
             } // spin
@@ -51,7 +48,7 @@ public class MCSLock implements Lock {
     }
 
     static class QNode {     // Queue node inner class
-        boolean locked = false;
-        QNode next = null;
+        volatile boolean locked = false;
+        volatile QNode next = null;
     }
 }

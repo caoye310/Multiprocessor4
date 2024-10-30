@@ -12,8 +12,8 @@ public class Benchmark {
     private static final String MCSLOCK = "MCSLock";
     private static final String SPINSLEEPLOCK = "SpinSleepLock";
     private static final String TTASLOCK = "TTASLock";
-    private static final String TASLock = "TASLock";
-    private static final String CLHLock = "CLHLock";
+    private static final String TASLOCK = "TASLock";
+    private static final String CLHLOCK = "CLHLock";
 
     public static void main(String[] args) throws Exception {
         String mode = args.length <= 0 ? "normal" : args[0];
@@ -23,9 +23,9 @@ public class Benchmark {
         int threadCount = (args.length <= 2 ? 16 : Integer.parseInt(args[2]));
         int totalIters = (args.length <= 3 ? 64000 : Integer.parseInt(args[3]));
         int iters = totalIters / threadCount;*/
-        int [] threads = {2, 4, 8, 16, 32};
-        // TASLock, TTASLOCK, ALOCK, BACKOFFLOCK, SPINSLEEPLOCK, CLHLock, MCSLOCK
-        String [] lockClasses = {BACKOFFLOCK};
+        int [] threads = {16, 32};//, 8, 16, 32};
+        // TASLOCK, TTASLOCK, ALOCK, BACKOFFLOCK, SPINSLEEPLOCK, CLHLOCK, MCSLOCK
+        String [] lockClasses = {CLHLOCK, MCSLOCK};
         for (int i = 0; i < threads.length; i++) {
             for(int j = 0; j < lockClasses.length; j++) {
                 run(args, mode, lockClasses[j], threads[i], 8000);
@@ -55,10 +55,10 @@ public class Benchmark {
                 case TTASLOCK:
                     lock = new TTASLock();
                     break;
-                case TASLock:
+                case TASLOCK:
                     lock = new TASLock();
                     break;
-                case CLHLock:
+                case CLHLOCK:
                     lock = new CLHLock();
                     break;
             }

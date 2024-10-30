@@ -15,7 +15,7 @@ import junit.framework.*;
  */
 public class MCSLockTest extends TestCase {
     private final static int THREADS = 4;
-    private final static int COUNT = 4 * 2000;
+    private final static int COUNT = 4 * 8000;
     private final static int PER_THREAD = COUNT / THREADS;
     Thread[] thread = new Thread[THREADS];
     int counter = 0;

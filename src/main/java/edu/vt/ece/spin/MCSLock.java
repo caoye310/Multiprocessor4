@@ -10,8 +10,7 @@
 
 package edu.vt.ece.spin;
 
-import edu.vt.ece.hw4.locks.Lock;
-
+import java.util.concurrent.locks.Lock;
 import java.util.concurrent.atomic.AtomicReference;
 import java.lang.ThreadLocal;
 import java.util.concurrent.locks.Condition;
@@ -22,38 +21,32 @@ import java.util.concurrent.TimeUnit;
  * @author Maurice Herlihy
  */
 public class MCSLock implements Lock {
-    AtomicReference<QNode> tail;
-    ThreadLocal<edu.vt.ece.spin.MCSLock.QNode> myNode;
-
+    AtomicReference<QNode> queue;
+    ThreadLocal<QNode> myNode;
     public MCSLock() {
-        tail = new AtomicReference<>(null);
-        myNode = new ThreadLocal<QNode>(){
+        queue = new AtomicReference<QNode>(null);
+        // initialize thread-local variable
+        myNode = new ThreadLocal<QNode>() {
             protected QNode initialValue() {
                 return new QNode();
             }
         };
     }
-
-    @Override
     public void lock() {
         QNode qnode = myNode.get();
-        QNode pred = tail.getAndSet(qnode);
+        QNode pred = queue.getAndSet(qnode);
         if (pred != null) {
             qnode.locked = true;
             pred.next = qnode;
-            while (qnode.locked) {
-            }     // spin
+            while (qnode.locked) {}     // spin
         }
     }
-
-    @Override
     public void unlock() {
         QNode qnode = myNode.get();
         if (qnode.next == null) {
-            if (tail.compareAndSet(qnode, null))
+            if (queue.compareAndSet(qnode, null))
                 return;
-            while (qnode.next == null) {
-            } // spin
+            while (qnode.next == null) {} // spin
         }
         qnode.next.locked = false;
         qnode.next = null;
@@ -76,7 +69,7 @@ public class MCSLock implements Lock {
     }
 
     static class QNode {     // Queue node inner class
-        boolean locked = false;
-        QNode   next = null;
+        volatile boolean locked = false;
+        volatile QNode   next = null;
     }
 }
